@@ -12,14 +12,14 @@ sub pantallaInicial {
 sub cargaConfig {
 	# tipo de planificación
 	&clearScreen;
-	print "1: Tipo de planificación (1: apropiativa, 2: no apropiativa): ";
+	print "1: Tipo de planificación de procesos (1: apropiativa: FIFO, 2: no apropiativa: SRT): ";
 	$opciones{tipoPlanificacion} = <>;
 	until ($opciones{tipoPlanificacion} =~ /^[12]$/) {
 		print "1: Ingrese 1 para apropiativa o 2 para no apropiativa: ";
 		$opciones{tipoPlanificacion} = <>;
 	}
 	&clearScreen;
-	print "Tipo de planificación: " . $opciones{tipoPlanificacion};
+	print "Tipo de planificación de procesos: " . $opciones{tipoPlanificacion};
 
 	# TODO: algoritmo para la lib. de hilos
 
@@ -65,7 +65,7 @@ sub cargaConfig {
 		$opciones{rafagas} = <>;
 	}
 	&clearScreen;
-	print "Tipo de planificación: " . $opciones{tipoPlanificacion};
+	print "Tipo de planificación de procesos: " . $opciones{tipoPlanificacion};
 	print "Cantidad de nucleos: " . $opciones{nucleos};
 	print "Cantidad de PC's: " . $opciones{procesos};
 	print "Rafagas del CPU: " . $opciones{rafagas};
