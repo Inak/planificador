@@ -38,12 +38,8 @@ my %opciones = (
 ## tiempo de llegada 0.
 ## CPU: cant. de rafagas (max 12) entre cpu o e/s (3 tipos).
 
-# array que guarda el estado de la matriz en cada ráfaga
-my @frames = ();
-
-# tabla
+# tabla de planificación
 my %tabla = (
-	so => 0, #ejecución del SO
 	id => 0,
 	klt => 1,
 	utl => 0,
@@ -55,6 +51,20 @@ my %tabla = (
 	cpu3 => 0,
 	es3 => 0,
 );
+
+# estado de evolución del gantt
+my %gantt = (
+	tiempo => 0,
+	so => 0,
+	ejecutoPC => 0,
+	finalizoPC => 0,
+	ready => 0,
+	wait => 0
+);
+
+# array que guarda el estado de la matriz en cada ráfaga
+# max 120 rafagas (1..12 rafagas x 1.10 procesos)
+my @frames = ();
 
 # colas (guardamos el id de c/proceso)
 my @ready = ();
