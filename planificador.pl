@@ -2,12 +2,12 @@
 
 use strict;
 use warnings;
-use Switch;
 
 require 'pantallas/inicial.pl';
 require 'pantallas/final.pl';
 
 require 'utils.pl';
+
 
 ########## inicio! ##########
 
@@ -25,32 +25,19 @@ require 'utils.pl';
 # opciones del usuario
 my %opciones = (
 	tipoPlanificacion => 0, # apropiativa o !apropiativa
-	algotitmoLibHilos => 0, # FIFO; RR, q = x, x != q del SO; HRRN; SPN; SRT # ingresar quantum de los hilos
 	nucleos => 0, # 1..2
-	procesos => 0, # 1..10
-	quantum => 0, # min. 1 unidad de tiempo
-	rafagas => 0, # 1..12 ESTO ES POR PROCESO!!
+	algotitmoLibHilos => 0, # FIFO; RR, q = x, x != q del SO; HRRN; SPN; SRT # ingresar quantum de los hilos
+	quantum => 0, # solo si elige RR
 );
 
 # procesos:
-# revisar lo q nec. cada proceso.
 ## hilos: min. 1..3 KTL, 0..3 ULT.
-## tiempo de llegada 0.
+## tiempo de llegada 0..120 (max cant. de ráfagas)
 ## CPU: cant. de rafagas (max 12) entre cpu o e/s (3 tipos).
 
 # tabla de planificación
-my %tabla = (
-	id => 0,
-	klt => 1,
-	utl => 0,
-	tiempoLlegada => 0,
-	cpu1 => 0,
-	es1 => 0,
-	cpu2 => 0,
-	es2 => 0,
-	cpu3 => 0,
-	es3 => 0,
-);
+## aca se cargan los PC's
+my @tabla = ();
 
 # estado de evolución del gantt
 my %gantt = (
@@ -63,7 +50,7 @@ my %gantt = (
 );
 
 # array que guarda el estado de la matriz en cada ráfaga
-# max 120 rafagas (1..12 rafagas x 1.10 procesos)
+# max 120 rafagas (1..12 rafagas x 1..10 procesos)
 my @frames = ();
 
 # colas (guardamos el id de c/proceso)
@@ -80,32 +67,21 @@ sub planificador {
 }
 
 sub menu {
-	# get opcion
+	# obtener opcion
 	print "Opciones:\n";
 	print "1 siguiente ciclo.\t";
 	print "2 mostrar config.\t";
 	print "3 salir.\n";
 	my $opcion = <>;
-	until($opcion =~ /^[1-2]$/) {
+	until($opcion =~ /^[1-3]$/) {
 		$opcion = <>;
 	}
 
 	# opciones
-	# 1: siguiente
-	# 2: salir
-	switch (int($opcion)) {
-		# sigue procesando
-		case 1 {
-			&planificador;
-		}
-		# mostrar config.
-		case 2 {
-			&mostrarOpciones;
-			&planificador;
-		}
-		# salir
-		case 3 {
-			&pantallaFinal;
-		}
-	}
+	# TODO: modo interactivo, retroceder, avanzar, fin (va al gantt final)
+	if (int($opcion) == 1) { &planificador; }
+	# 2: mostrar config.
+	elsif (int($opcion) == 2) { &mostrarOpciones; &planificador; }
+	# 3: salir
+	elsif (int($opcion) == 3) { &pantallaFinal; }
 }
