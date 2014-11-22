@@ -1,17 +1,24 @@
 # caratula y carga de configuración del planificador
 sub pantallaInicial {
 	&clearScreen;
-	print "TP 2: Sistemas Operativos\n\n";
-	print "Planificador\n\n";
-	print "Presione enter para comenzar...\n";
+	print "*******************************************\n";
+	print "* TP 2: Sistemas Operativos               *\n";
+	print "*                                         *\n";
+	print "* Planificador                            *\n";
+	print "*******************************************\n";
+
+	print "\nPresione enter para comenzar...";
+
 	<>;
 	&cargaConfig;
 }
 
 # carga la config. elegida por el usuario para el planificador
 sub cargaConfig {
-	# tipo de planificación
+
 	&clearScreen;
+	print "Comienze cargando los procesos:\n\n";
+	# tipo de planificación
 	print "1: Tipo de planificación de procesos (1: apropiativa: FIFO, 2: no apropiativa: SRT): ";
 	chomp($opciones{tipoPlanificacion} = <>);
 	until ($opciones{tipoPlanificacion} =~ /^[12]$/) {
@@ -49,7 +56,7 @@ sub cargaConfig {
 	if ($opciones{algotitmoLibHilos} == 2) {
 		print "Seleccione el quantum: ";
 		chomp($opciones{quantum} = <>);
-		until ($opciones{quantum} =~ /^\d+$/) {
+		until ($opciones{quantum} =~ /^([0-9]|[1-9][0-9]|100)$/) { # TODO: bug: deja pasar cero.
 			print "El quantum debe ser un número entero mayor a cero: ";
 			chomp($opciones{quantum} = <>);
 		}
