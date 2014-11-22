@@ -10,24 +10,12 @@ sub new {
 		padre_id => shift,
 		tipo     => shift,
 		llegada  => shift,
-		refagas  => [ @_ ],
+		rafagas  => [ @_ ],
 	};
 
 	bless $self, $class;
 
 	return $self;
-}
-
-sub add {
-	my ( $self, $rafaga ) = @_;
-	$self->{rafagas} = \@rafaga;
-}
-
-sub getRafagas {
-	my( $self ) = @_;
-	my @path = @{ $self->{rafagas} };
-	wantarray ? @path : \@path;
-	return $path;
 }
 
 1;
