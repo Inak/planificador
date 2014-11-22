@@ -5,9 +5,10 @@ use warnings;
 
 require 'pantallas/inicial.pl';
 require 'pantallas/final.pl';
-
 require 'utils.pl';
 
+use Proceso;
+use Rafaga;
 
 ########## inicio! ##########
 
@@ -30,13 +31,7 @@ my %opciones = (
 	quantum => 0, # solo si elige RR
 );
 
-# procesos:
-## hilos: min. 1..3 KTL, 0..3 ULT.
-## tiempo de llegada 0..120 (max cant. de ráfagas)
-## CPU: cant. de rafagas (max 12) entre cpu o e/s (3 tipos).
-
-# tabla de planificación
-## aca se cargan los PC's
+# tabla de planificación, aca se cargan los PC's
 my @tabla = ();
 
 # estado de evolución del gantt
@@ -61,7 +56,7 @@ my @wait = ();
 ### sub rutinas (funciones) ###
 ###############################
 
-# planificador
+# planificador: entrada al algo. ppal.
 sub planificador {
 	&menu;
 }
@@ -77,7 +72,7 @@ sub menu {
 		$opcion = <>;
 	}
 
-	# opciones
+	# Opciones:
 	# TODO: modo interactivo, retroceder, avanzar, fin (va al gantt final)
 	if (int($opcion) == 1) { &planificador; }
 	# 2: mostrar config.

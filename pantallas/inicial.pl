@@ -17,7 +17,7 @@ sub pantallaInicial {
 sub cargaConfig {
 
 	&clearScreen;
-	print "Comienze cargando los procesos:\n\n";
+	print "Comienze cargando los datos a planificar:\n\n";
 	# tipo de planificación
 	print "1: Tipo de planificación de procesos (1: apropiativa: FIFO, 2: no apropiativa: SRT): ";
 	chomp($opciones{tipoPlanificacion} = <>);
@@ -69,93 +69,124 @@ sub cargaConfig {
 	&cargarProcesos;
 
 	# mostrar todo lo cargado
-	print "Tipo de planificación de procesos: " . $opciones{tipoPlanificacion};
-	print "Cantidad de nucleos: " . $opciones{nucleos};
-	print "Algoritmo para la libreria de hilos: " . $opciones{algotitmoLibHilos};
-	if ($opciones{algotitmoLibHilos} == 2) { print "Quantum: " . $opciones{quantum}; };
+	&clearScreen;
+	print "Configuracion del planificador cargada:\n";
+	print "\nTipo de planificación de procesos: " . $opciones{tipoPlanificacion};
+	print "\nCantidad de nucleos: " . $opciones{nucleos};
+	print "\nAlgoritmo para la libreria de hilos: " . $opciones{algotitmoLibHilos};
+	if ($opciones{algotitmoLibHilos} == 2) { print "\tQuantum: " . $opciones{quantum}; };
+	print "\n";
+	print "\nProcesos cargados:\n\n";
+	foreach $p (@tabla) {
+		$p->mostrarCampos();
+	}
 }
 
 sub cargarProcesos {
-	print "Cargar procesos:\n\n";
-	print "Cargar proceso número: " . scalar @tabla + 1 . "\n";
+	&clearScreen;
+	print "Cargar procesos...\n";
+	$masProcesos = 0;
+	&cargarProcesoEnTabla;
+	&clearScreen;
+	print "Quiere cargar más procesos? (y/n): ";
+	my $eleccion;
+	chomp($eleccion = <>);
+	until ($eleccion =~ /^[yn]$/) {
+		print "Opción invalida, ingrese 'y' para cargar más o 'n' para terminar la carga: ";
+		chomp($eleccion = <>);
+	}
+	# más procesos?
+	$masProcesos = $eleccion eq "y" ? 1 : 0;
+	while (scalar @tabla < 10 && $masProcesos) {
+		&cargarProcesoEnTabla();
+		if (scalar @tabla < 10) {
+			print "Quiere cargar más procesos? (y/n): ";
+			my $eleccion;
+			chomp($eleccion = <>);
+			until ($eleccion =~ /^[yn]$/) {
+				print "Opción invalida, ingrese 'y' para cargar más o 'n' para terminar la carga: ";
+				chomp($eleccion = <>);
+			}
+			# más procesos?
+			$masProcesos = $eleccion eq "y" ? 1 : 0;
+		}
+	}
+}
 
-	# TODO: falta terminar el loop de los procesos!
-
+sub cargarProcesoEnTabla {
 	# proceso a cargar en la tabla
-	my %proceso = (
-		id => scalar @tabla + 1,
-		klt => 0,
-		ult => 0,
-		tiempoLlegada => 0,
-		# ráfagas
-		cpu1 => 0,
-		es1 => 0,
-		cpu2 => 0,
-		es2 => 0,
-		cpu3 => 0,
-		es3 => 0
-	);
-
-	# cargar cant. de KLT's
-	&clearScreen;
-	print "Cantidad de KLT's (1 a 3): ";
-	chomp($proceso{klt} = <>);
-	until ($proceso{klt} =~ /^[1-3]$/) {
-		print "La cantidad de KLT's debe ser de 1 a 3: ";
-		chomp($proceso{klt} = <>);
-	}
-
-	# cargar cant. de ULT's
-	&clearScreen;
-	print "Cantidad de ULT's (0 a 3): ";
-	chomp($proceso{ult} = <>);
-	until ($proceso{ult} =~ /^[0-3]$/) {
-		print "La cantidad de ULT's debe ser de 0 a 3: ";
-		chomp($proceso{ult} = <>);
-	}
+	my $proceso = new Proceso(scalar @tabla + 1);
 
 	# tiempo de llegada
 	&clearScreen;
+	print "Cargar proceso número: " . scalar @tabla + 1 . "\n\n";
 	print "Seleccione tiempo de llegada: ";
-	chomp($proceso{tiempoLlegada} = <>);
-	until ($proceso{tiempoLlegada} =~ /^\d+$/ || $proceso{tiempoLlegada} =~ /^[0]$/) {
+	chomp($proceso->{llegada} = <>);
+	until ($proceso->{llegada} =~ /^\d+$/ || $proceso->{llegada} =~ /^[0]$/) {
 		print "El tiempo de llegada debe ser un entero mayor o igual a cero: ";
-		chomp($proceso{tiempoLlegada} = <>);
+		chomp($proceso->{llegada} = <>);
+	}
+
+	# es KLT o ULT?
+	&clearScreen;
+	print "Seleccione tipo de hilo:\n";
+	print "\t1: KLT, 2: ULT.\n";
+	chomp($proceso->{tipo} = <>);
+	until ($proceso->{tipo} =~ /^[12]$/) {
+		print "Eliga una opción correcta:\n";
+		print "Opciones:\n";
+		print "\t1: KLT, 2: ULT.\n";
+		chomp($proceso->{tipo} = <>);
 	}
 
 	# cargar ráfagas
 	&clearScreen;
 	$masRafagas = 1;
-	$columna = 1; # 1..6, impares == CPU (1,3,5), pares E/S (2,4,6)
 	until (
-		&getTotalRafagas(%proceso) == 12 ||
-		(&getTotalRafagas(%proceso) < 12 && !$masRafagas)
+		$proceso->getTotalRafagas() == 12 ||
+		($proceso->getTotalRafagas() < 12 && !$masRafagas)
 	) {
-		print "Cargar hola de ráfagas de " . ($columna % 2 == 0 ? "E/S" : "CPU") . ": ";
+		my $indice = 0;
+		my $rafaga = new Rafaga();
+
+		# tipo de rafaga
+		&clearScreen;
+		print "Seleccione tipo de ráfaga:\n";
+		print "\tOpciones:\n";
+		print "\t1: CPU, 2: I/O1, 3: I/O2, 4: I/O3.\n";
+		chomp($rafaga->{tipo} = <>);
+		until ($rafaga->{tipo} =~ /^[1-4]$/) {
+			print "Eliga una opción correcta:\n";
+			print "Opciones:\n";
+			print "\t1: CPU, 2: I/O1, 3: I/O2, 4: I/O3.\n";
+			chomp($rafaga->{tipo} = <>);
+		}
+
+		# catn. de rafagas
+		&clearScreen;
+		print "Cargar cantidad de ráfagas: ";
 		my $rafagas = 0;
 		chomp($rafagas = <>);
 		until (
-			# comparo el string ingresado 1ero para validar si el tipo carga núms. neg. o caracteres
+			# validar >= 12
 			($rafagas =~ /^[1-9]$/ || $rafagas =~ /^[1][0-2]$/) &&
 			# luego valida que no se pase del total permitido
-			$rafagas + &getTotalRafagas(%proceso) <= 12
+			$rafagas + $proceso->getTotalRafagas() <= 12
 		) {
-			print "2\n";
-			print "El número de ráfagas total por proceso es 12:\n";
-			print "Ráfagas cargadas: " . &getTotalRafagas(%proceso) . "\n";
+			print "El número de ráfagas máximo por proceso es 12:\n";
+			print "Ráfagas cargadas: " . $proceso->getTotalRafagas() . "\n";
 			print "Intentaste cargar " . $rafagas  . " intente denuevo: ";
 			chomp($rafagas = <>);
 		}
-		# meter el valor
-		if ($columna == 1) { $proceso{cpu1} = $rafagas; }
-		elsif ($columna == 2) { $proceso{es1} = $rafagas; }
-		elsif ($columna == 3) { $proceso{cpu2} = $rafagas; }
-		elsif ($columna == 4) { $proceso{es2} = $rafagas; }
-		elsif ($columna == 5) { $proceso{cpu3} = $rafagas; }
-		elsif ($columna == 6) { $proceso{es3} = $rafagas; }
+
+		$rafaga->{cantidad} = $rafagas;
+
+		# cargar rafaga al proceso
+		push($proceso->{rafagas}, $rafaga);
+
 		# mas ráfagas?
 		&clearScreen;
-		if (getTotalRafagas(%proceso) < 12) {
+		if ($proceso->getTotalRafagas() < 12) {
 			print "Quiere cargar más ráfagas? (y/n): ";
 			my $eleccion;
 			chomp($eleccion = <>);
@@ -165,17 +196,12 @@ sub cargarProcesos {
 			}
 			# más ráfagas?
 			$masRafagas = $eleccion eq "y" ? 1 : 0;
+			$indice += 1;
 		}
-		# siguiente columna
-		++$columna;
 	}
 
 	# mete el proceso en el array (tabla)
-	push(@tabla, %proceso);
-
-	# mostrar proceso
-	print "Proceso:\n";
-	print "$_ $proceso{$_}\n" for (keys %proceso);
+	push(@tabla, $proceso);
 }
 
 1;
