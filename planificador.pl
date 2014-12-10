@@ -7,6 +7,15 @@ require 'pantallas/inicial.pl';
 require 'pantallas/final.pl';
 require 'utils.pl';
 
+use Planificador;
+use Salida;
+use Fifo;
+use Srt;
+use FifoUlt;
+use SrtUlt;
+use SpnUlt;
+use HrrtUlt;
+use RoundRobinUlt;
 use Proceso;
 use Rafaga;
 
@@ -58,25 +67,37 @@ my @wait = ();
 
 # planificador: entrada al algo. ppal.
 sub planificador {
+	my $salida = new Salida();
+	$salida->inicializar(@tabla);
+	my $planificador = new Planificador(new Fifo(new SrtUlt(4)), 1, $salida, @tabla);
+	$planificador->planificar_procesos();
+
 	&menu;
 }
 
 sub menu {
-	# obtener opcion
+	# mostrar opciones
 	print "Opciones:\n";
-	print "1 siguiente ciclo.\t";
-	print "2 mostrar config.\t";
-	print "3 salir.\n";
+	print "1 avanzar.\t";
+	print "2 retroceder.\t";
+	print "3 ir al gantt final.\t";
+	print "4 mostrar config.\t";
+	print "5 salir.\n";
+
+	# obtener opción
 	my $opcion = <>;
-	until($opcion =~ /^[1-3]$/) {
+	until($opcion =~ /^[1-5]$/) {
 		$opcion = <>;
 	}
 
-	# Opciones:
-	# TODO: modo interactivo, retroceder, avanzar, fin (va al gantt final)
+	# avanzar
 	if (int($opcion) == 1) { &planificador; }
+	# retroceder
+	elsif (int($opcion) == 2) { &planificador; }
+	# ir al gantt final
+	elsif (int($opcion) == 3) { &planificador; }
 	# 2: mostrar config.
-	elsif (int($opcion) == 2) { &mostrarOpciones; &planificador; }
+	elsif (int($opcion) == 4) { &mostrarOpciones; &planificador; }
 	# 3: salir
-	elsif (int($opcion) == 3) { &pantallaFinal; }
+	elsif (int($opcion) == 5) { &pantallaFinal; }
 }

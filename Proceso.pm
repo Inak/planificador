@@ -6,9 +6,9 @@ sub new {
 	my $class = shift;
 
 	my $self = {
-		nombre   => shift,
+		nombre   => "nombre",
 		id       => shift,
-		padre_id => shift,
+		padre_id => 0,
 		tipo     => shift, # 1: KLT, 2: ULT; min. 1..3 KTL, 0..3 ULT.
 		llegada  => shift, # tiempo de llegada 0..120 (max cant. de ráfagas)
 		rafagas  => [ @_ ],
@@ -150,6 +150,7 @@ sub mostrarCampos {
 	my($self) = @_;
 	print "Resumen proceso:\n";
 	print "id: " . $self->{id} . "\n";
+	print "nombre: " . $self->{nombre} . "\n";
 	print "proceso padre: " . $self->{padre_id} . "\n";
 	print "tipo de proceso: " . $self->{tipo} . "\n";
 	print "tiempo de llegada: " . $self->{llegada} . "\n";
