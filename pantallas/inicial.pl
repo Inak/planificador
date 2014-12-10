@@ -26,7 +26,6 @@ sub cargaConfig {
 		chomp($opciones{tipoPlanificacion} = <>);
 	}
 	&clearScreen;
-	print "Tipo de planificación de procesos: " . $opciones{tipoPlanificacion};
 
 	# cantidad de nucleos del CPU
 	&clearScreen;
@@ -37,8 +36,6 @@ sub cargaConfig {
 		chomp($opciones{nucleos} = <>);
 	}
 	&clearScreen;
-	print "Tipo de planificación: " . $opciones{tipoPlanificacion};
-	print "Cantidad de nucleos: " . $opciones{nucleos};
 
 	# algoritmo para la lib. de hilos
 	&clearScreen;
@@ -149,21 +146,29 @@ sub cargarProcesoEnTabla {
 		my $indice = 0;
 		my $rafaga = new Rafaga();
 
-		# tipo de rafaga
-		&clearScreen;
-		print "Seleccione tipo de ráfaga:\n";
-		print "\tOpciones:\n";
-		print "\t1: CPU, 2: I/O1, 3: I/O2, 4: I/O3.\n";
-		chomp($rafaga->{tipo} = <>);
-		until ($rafaga->{tipo} =~ /^[1-4]$/) {
-			print "Eliga una opción correcta:\n";
-			print "Opciones:\n";
+		# la 1era es de CPU
+		if ($proceso->getTotalRafagas() == 0) {
+			$rafaga->{tipo} = 1;
+		# las demás puede elegir cualquiera
+		} else {
+			&clearScreen;
+			print "Seleccione tipo de ráfaga:\n";
+			print "\tOpciones:\n";
 			print "\t1: CPU, 2: I/O1, 3: I/O2, 4: I/O3.\n";
 			chomp($rafaga->{tipo} = <>);
+			until ($rafaga->{tipo} =~ /^[1-4]$/) {
+				print "Eliga una opción correcta:\n";
+				print "Opciones:\n";
+				print "\t1: CPU, 2: I/O1, 3: I/O2, 4: I/O3.\n";
+				chomp($rafaga->{tipo} = <>);
+			}
 		}
 
 		# catn. de rafagas
 		&clearScreen;
+
+		if ($proceso->getTotalRafagas() == 0) { print "La 1era hola de ráfagas es del CPU.\n"; }
+
 		print "Cargar cantidad de ráfagas: ";
 		my $rafagas = 0;
 		chomp($rafagas = <>);
