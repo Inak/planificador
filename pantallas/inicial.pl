@@ -17,7 +17,11 @@ sub cargarProcesos {
 	print "Cargar procesos...\n";
 	$masProcesos = 0;
 
-	&cargarProcesoEnTabla;
+	# el ultimo padre
+	my $ultimoProceso;
+	my $esHijo = 0;
+
+	&cargarProcesoEnTabla($ultimoProceso);
 	&clearScreen;
 	print "Quiere cargar más procesos? (y/n): ";
 	my $eleccion;
@@ -59,25 +63,6 @@ sub cargarProcesoEnTabla {
 		$proceso->{padre_id} = $proceso->{id};
 	}
 
-	# tiempo de llegada
-	&clearScreen;
-	print "Cargar proceso número: " . scalar @tabla + 1 . "\n\n";
-	print "Seleccione tiempo de llegada: ";
-	chomp($proceso->{llegada} = <>);
-	until ($proceso->{llegada} =~ /^\d+$/ || $proceso->{llegada} =~ /^[0]$/) {
-		print "El tiempo de llegada debe ser un entero mayor o igual a cero: ";
-		chomp($proceso->{llegada} = <>);
-	}
-
-	# cargar nombre
-	&clearScreen;
-	print "Cargar nombre del proceso (min. 1 caracter, máx. 8 caracteres): ";
-	chomp($proceso->{nombre} = <>);
-	until ($proceso->{nombre} =~ /^[a-z0-9\s]{1,8}$/i) {
-		print "El nombre debe consistir en una cadena de 1 a 8 caracteres: ";
-		chomp($proceso->{nombre} = <>);
-	}
-
 	# es KLT o ULT?
 	&clearScreen;
 	print "Seleccione tipo de hilo:\n";
@@ -92,11 +77,9 @@ sub cargarProcesoEnTabla {
 	--$proceso->{tipo};
 
 	# logica para los procesos hijos
-	my $ultimoProceso;
-	my $esHijo;
 	if (scalar @tabla + 1 > 1) {
-		$ultimoProceso = $tabla[$#tabla];
-		$esHijo = 0;
+		# 1er proceso padre es el 1ero del array
+		if (scalar @tabla + 1 == 2) { $ultimoProceso = $tabla[0]; }
 
 		# si es padre se pregunta si quiere cargar hilos hijos
 		if ($ultimoProceso->esPadre()) {
@@ -121,7 +104,7 @@ sub cargarProcesoEnTabla {
 			}
 
 			&clearScreen;
-			print "Asociar el sig. proceso como hijo del anterior? (y/n): ";
+			print "Asociar el sig. proceso como hilo del proceso " . $ultimoProceso->{nombre} . "? (y/n): ";
 			my $eleccion;
 			chomp($eleccion = <>);
 			until ($eleccion =~ /^[yn]$/) {
@@ -132,7 +115,33 @@ sub cargarProcesoEnTabla {
 			$esHijo = $eleccion eq "y" ? 1 : 0;
 		}
 	}
-	if ($esHijo) { $proceso->{padre_id} = $ultimoProceso->{id}; }
+	if ($esHijo) {
+		$proceso->{padre_id} = $ultimoProceso->{id};
+		$proceso->{llegada} = $ultimoProceso->{llegada};
+		# TODO: construir nombre del hilo
+		$proceso->{nombre} = $ultimoProceso->{nombre};
+	} else {
+		# tiempo de llegada
+		&clearScreen;
+		print "Cargar proceso número: " . scalar @tabla + 1 . "\n\n";
+		print "Seleccione tiempo de llegada: ";
+		chomp($proceso->{llegada} = <>);
+		until ($proceso->{llegada} =~ /^\d+$/ || $proceso->{llegada} =~ /^[0]$/) {
+			print "El tiempo de llegada debe ser un entero mayor o igual a cero: ";
+			chomp($proceso->{llegada} = <>);
+		}
+
+		# cargar nombre
+		&clearScreen;
+		print "Cargar nombre del proceso (min. 1 caracter, máx. 8 caracteres): ";
+		chomp($proceso->{nombre} = <>);
+		until ($proceso->{nombre} =~ /^[a-z0-9\s]{1,8}$/i) {
+			print "El nombre debe consistir en una cadena de 1 a 8 caracteres: ";
+			chomp($proceso->{nombre} = <>);
+		}
+
+		$proceso->{padre_id} = $proceso->{id};
+	}
 
 	# cargar ráfagas
 	&clearScreen;
@@ -202,6 +211,11 @@ sub cargarProcesoEnTabla {
 			$masRafagas = $eleccion eq "y" ? 1 : 0;
 			$indice += 1;
 		}
+	}
+
+	# sino es hijo seria el ultimo padre
+	if ($esHijo == 0) {
+		$ultimoProceso = $proceso;
 	}
 
 	# mete el proceso en el array (tabla)
