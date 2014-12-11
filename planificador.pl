@@ -89,23 +89,29 @@ sub planificador {
 	$salida = new Salida();
 	$salida->inicializar(@tabla);
 
+	# Fifo => 0
+	# RR => 1
+	# Hrrn => 2
+	# Spn => 3
+	# Srt => 4
+
 	# 1: apropiativa: FIFO
 	if ($opciones{tipoPlanificacion} == 1) {
 		# 1: FIFO
 		if ($opciones{algotitmoLibHilos} == 1) {
-			$planificador = new Planificador(new Fifo(new FifoUlt(1)), $opciones{nucleos}, $salida, @tabla);
+			$planificador = new Planificador(new Fifo(new FifoUlt(0)), $opciones{nucleos}, $salida, @tabla);
 		# 2: RR, q = x, x != q del SO
 		} elsif ($opciones{algotitmoLibHilos} == 2) {
 			$planificador = new Planificador(new Fifo(new RoundRobinUlt(1, $opciones{quantum})), $opciones{nucleos}, $salida, @tabla);
 		# 3: HRRN
 		} elsif ($opciones{algotitmoLibHilos} == 3) {
-			$planificador = new Planificador(new Fifo(new HrrnUlt(1)), $opciones{nucleos}, $salida, @tabla);
+			$planificador = new Planificador(new Fifo(new HrrnUlt(2)), $opciones{nucleos}, $salida, @tabla);
 		# 4: SPN
 		} elsif ($opciones{algotitmoLibHilos} == 4) {
-			$planificador = new Planificador(new Fifo(new SpnUlt(1)), $opciones{nucleos}, $salida, @tabla);
+			$planificador = new Planificador(new Fifo(new SpnUlt(3)), $opciones{nucleos}, $salida, @tabla);
 		# 5: SRT
 		} elsif ($opciones{algotitmoLibHilos} == 5) {
-			$planificador = new Planificador(new Fifo(new SrtUlt(1)), $opciones{nucleos}, $salida, @tabla);
+			$planificador = new Planificador(new Fifo(new SrtUlt(4)), $opciones{nucleos}, $salida, @tabla);
 		}
 	# 2: no apropiativa: SRT
 	} else {
