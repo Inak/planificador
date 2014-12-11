@@ -119,7 +119,7 @@ sub cargarProcesoEnTabla {
 		$proceso->{padre_id} = $ultimoProceso->{id};
 		$proceso->{llegada} = $ultimoProceso->{llegada};
 		# TODO: construir nombre del hilo
-		$proceso->{nombre} = $ultimoProceso->{nombre};
+		$proceso->{nombre} = "H" . $ultimoProceso->{id};
 	} else {
 		# tiempo de llegada
 		&clearScreen;
@@ -175,7 +175,7 @@ sub cargarProcesoEnTabla {
 		# catn. de rafagas
 		&clearScreen;
 
-		if ($proceso->getTotalRafagas() == 0) { print "La 1era hola de ráfagas es del CPU.\n"; }
+		if ($proceso->getTotalRafagas() == 0) { print "La 1era ola de ráfagas es del CPU.\n"; }
 
 		print "Cargar cantidad de ráfagas: ";
 		my $rafagas = 0;
