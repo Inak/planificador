@@ -38,7 +38,7 @@ sub cargarProcesos {
 
 		if (scalar @tabla < 10) {
 			&clearScreen;
-			print "Quiere cargar más procesos? (y/n): ";
+			print "Quiere cargar más procesos o hilos? (y/n): ";
 			my $eleccion;
 			chomp($eleccion = <>);
 			until ($eleccion =~ /^[yn]$/) {
