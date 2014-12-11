@@ -3,10 +3,6 @@
 #use strict;
 #use warnings;
 
-require 'pantallas/inicial.pl';
-require 'pantallas/final.pl';
-require 'utils.pl';
-
 use Planificador;
 use Salida;
 use Fifo;
@@ -19,23 +15,13 @@ use RoundRobinUlt;
 use Proceso;
 use Rafaga;
 
-########## inicio! ##########
-
-#&test;
-&pantallaInicial;
-&planificador;
-#&pantallaFinal;
-
-#############################
-
-
 ##########################
 ### variables globales ###
 ##########################
 
 # opciones del usuario
 my %opciones = (
-	tipoPlanificacion => 0, # apropiativa o !apropiativa
+	tipoPlanificacion => 0, # 1: apropiativa: FIFO, 2: no apropiativa: SRT
 	nucleos => 0, # 1..2
 	algotitmoLibHilos => 0, # FIFO; RR, q = x, x != q del SO; HRRN; SPN; SRT # ingresar quantum de los hilos
 	quantum => 0, # solo si elige RR
@@ -67,6 +53,14 @@ my @wait = ();
 my $esPadre = 1;
 my $cargarHijo = 0;
 
+
+
+require 'pantallas/inicial.pl';
+require 'pantallas/final.pl';
+require 'utils.pl';
+
+
+
 ###############################
 ### sub rutinas (funciones) ###
 ###############################
@@ -83,10 +77,58 @@ sub test {
 
 # planificador: entrada al algo. ppal.
 sub planificador {
+#	print "-----\n";
+#	print "Configuracion del planificador cargada:\n";
+#	print "\nTipo de planificación de procesos: " . $opciones{tipoPlanificacion};
+#	print "\nCantidad de nucleos: " . $opciones{nucleos};
+#	print "\nAlgoritmo para la libreria de hilos: " . $opciones{algotitmoLibHilos};
+#	if ($opciones{algotitmoLibHilos} == 2) { print "\tQuantum: " . $opciones{quantum}; };
+#	print "\n";
+#	print "-----\n";
+
 	$salida = new Salida();
 	$salida->inicializar(@tabla);
-	$planificador = new Planificador(new Srt(new RoundRobinUlt(1, 2)), 1, $salida, @tabla);
+
+	# 1: apropiativa: FIFO
+	if ($opciones{tipoPlanificacion} == 1) {
+		# 1: FIFO
+		if ($opciones{algotitmoLibHilos} == 1) {
+			$planificador = new Planificador(new Fifo(new FifoUlt(1)), $opciones{nucleos}, $salida, @tabla);
+		# 2: RR, q = x, x != q del SO
+		} elsif ($opciones{algotitmoLibHilos} == 2) {
+			$planificador = new Planificador(new Fifo(new RoundRobinUlt(1, $opciones{quantum})), $opciones{nucleos}, $salida, @tabla);
+		# 3: HRRN
+		} elsif ($opciones{algotitmoLibHilos} == 3) {
+			$planificador = new Planificador(new Fifo(new HrrnUlt(1)), $opciones{nucleos}, $salida, @tabla);
+		# 4: SPN
+		} elsif ($opciones{algotitmoLibHilos} == 4) {
+			$planificador = new Planificador(new Fifo(new SpnUlt(1)), $opciones{nucleos}, $salida, @tabla);
+		# 5: SRT
+		} elsif ($opciones{algotitmoLibHilos} == 5) {
+			$planificador = new Planificador(new Fifo(new SrtUlt(1)), $opciones{nucleos}, $salida, @tabla);
+		}
+	# 2: no apropiativa: SRT
+	} else {
+		# 1: FIFO
+		if ($opciones{algotitmoLibHilos} == 1) {
+			$planificador = new Planificador(new Srt(new FifoUlt(1)), $opciones{nucleos}, $salida, @tabla);
+		# 2: RR, q = x, x != q del SO
+		} elsif ($opciones{algotitmoLibHilos} == 2) {
+			$planificador = new Planificador(new Srt(new RoundRobinUlt(1, $opciones{quantum})), $opciones{nucleos}, $salida, @tabla);
+		# 3: HRRN
+		} elsif ($opciones{algotitmoLibHilos} == 3) {
+			$planificador = new Planificador(new Srt(new HrrnUlt(1)), $opciones{nucleos}, $salida, @tabla);
+		# 4: SPN
+		} elsif ($opciones{algotitmoLibHilos} == 4) {
+			$planificador = new Planificador(new Srt(new SpnUlt(1)), $opciones{nucleos}, $salida, @tabla);
+		# 5: SRT
+		} elsif ($opciones{algotitmoLibHilos} == 5) {
+			$planificador = new Planificador(new Srt(new SrtUlt(1)), $opciones{nucleos}, $salida, @tabla);
+		}
+	}
+
 	$planificador->planificar_procesos();
+
 	#&menu;
 }
 
@@ -116,3 +158,93 @@ sub menu {
 	# 3: salir
 	elsif (int($opcion) == 5) { &pantallaFinal; }
 }
+
+sub cargarOpcionesDelPlanificador {
+	&clearScreen;
+	print "Comienze cargando los datos a planificar:\n\n";
+	# tipo de planificación
+	print "1: Tipo de planificación de procesos (1: apropiativa: FIFO, 2: no apropiativa: SRT): ";
+	chomp($opciones{tipoPlanificacion} = <>);
+	until ($opciones{tipoPlanificacion} =~ /^[12]$/) {
+		print "1: Ingrese 1 para apropiativa o 2 para no apropiativa: ";
+		chomp($opciones{tipoPlanificacion} = <>);
+	}
+	&clearScreen;
+
+	# cantidad de nucleos del CPU
+	&clearScreen;
+	print "2: Numero de nucleos del CPU (1 o 2): ";
+	chomp($opciones{nucleos} = <>);
+	until ($opciones{nucleos} =~ /^[12]$/) {
+		print "2: La cantidad de nucleos solo puede ser 1 o 2: ";
+		chomp($opciones{nucleos} = <>);
+	}
+	&clearScreen;
+
+	# algoritmo para la lib. de hilos
+	&clearScreen;
+	print "3: Algoritmo para la libreria de hilos:\n";
+	print "\tOpciones:\n";
+	print "\t1: FIFO, 2: RR, 3: HRRN, 4: SPN, 5: SRT.\n";
+	chomp($opciones{algotitmoLibHilos} = <>);
+	until ($opciones{algotitmoLibHilos} =~ /^[12345]$/) {
+		print "3: Eliga una opción correcta:\n";
+		print "Opciones:\n";
+		print "\t1: FIFO, 2: RR, 3: HRRN, 4: SPN, 5: SRT.\n";
+		chomp($opciones{algotitmoLibHilos} = <>);
+	}
+	# elegir quantum solo si seleccionó RR
+	if ($opciones{algotitmoLibHilos} == 2) {
+		print "Seleccione el quantum: ";
+		chomp($opciones{quantum} = <>);
+		until ($opciones{quantum} =~ /^([0-9]|[1-9][0-9]|100)$/) { # TODO: bug: deja pasar cero.
+			print "El quantum debe ser un número entero mayor a cero: ";
+			chomp($opciones{quantum} = <>);
+		}
+	}
+	&clearScreen;
+	print "3: Algoritmo para la libreria de hilos: " . $opciones{algotitmoLibHilos};
+	if ($opciones{algotitmoLibHilos} == 2) { print "\tQuantum: " . $opciones{quantum} . "\n"; }
+
+	return %opciones;
+}
+
+sub mostrarLoCargado {
+	# mostrar todo lo cargado
+	&clearScreen;
+	print "Configuracion del planificador cargada:\n";
+	print "\nTipo de planificación de procesos: " . $opciones{tipoPlanificacion};
+	print "\nCantidad de nucleos: " . $opciones{nucleos};
+	print "\nAlgoritmo para la libreria de hilos: " . $opciones{algotitmoLibHilos};
+	if ($opciones{algotitmoLibHilos} == 2) { print "\tQuantum: " . $opciones{quantum}; };
+	print "\n";
+	print "\nProcesos cargados:\n\n";
+	foreach $p (@tabla) {
+		$p->mostrarCampos();
+	}
+}
+
+#############################
+########## inicio! ##########
+#############################
+
+# casos de prueba
+#&test;
+
+# inicio e ingreso de datos.
+&pantallaInicial;
+%opciones = &cargarOpcionesDelPlanificador;
+&cargarProcesos;
+
+# mostrar lo cargado
+&mostrarLoCargado;
+
+# algoritmo ppal.
+&planificador;
+
+# saludo final.
+#&pantallaFinal;
+
+#############################
+########### fin #############
+#############################

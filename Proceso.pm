@@ -154,7 +154,7 @@ sub mostrarCampos {
 	print "proceso padre: " . $self->{padre_id} . "\n";
 	print "tipo de proceso: " . $self->{tipo} . "\n";
 	print "tiempo de llegada: " . $self->{llegada} . "\n";
-	print "Rafagas:\n";
+	print "\nRafagas:\n";
 	foreach $r (@{$self->{rafagas}}) {
 		$r->mostrarCampos();
 	}
