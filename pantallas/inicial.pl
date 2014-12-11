@@ -119,7 +119,7 @@ sub cargarProcesoEnTabla {
 		$proceso->{padre_id} = $ultimoProceso->{id};
 		$proceso->{llegada} = $ultimoProceso->{llegada};
 		# TODO: construir nombre del hilo
-		$proceso->{nombre} = "H" . $ultimoProceso->{id};
+		$proceso->{nombre} = "H" . $proceso->{id};
 	} else {
 		# tiempo de llegada
 		&clearScreen;
