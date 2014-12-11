@@ -134,7 +134,11 @@ sub mostrar {
 			for ($item2=$cont; $item2 < $long; $item2++) {
 				if ($item2 == 0) {
 					if (length($self->{gantt}[$item][$item2]) < 8) {
-						print $self->{gantt}[$item][$item2]."       ";
+						my $str = $self->{gantt}[$item][$item2];
+						while (length($str) < 8) {
+							$str = $str." ";
+						}
+						print $str." ";
 					} else {
 						print $self->{gantt}[$item][$item2]." ";
 					}

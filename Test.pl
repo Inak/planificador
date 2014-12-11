@@ -33,7 +33,7 @@ $procesos = [new Proceso("P1(KLT1)", 1, 1, 0, 0, @{[new Rafaga(0, 4), new Rafaga
                         new Proceso("P2(ULT1)", 3, 2, 1, 2, @{[new Rafaga(0, 3), new Rafaga(2, 2), new Rafaga(0, 2)]}),
 			new Proceso("P3(KLT1)", 4, 4, 0, 4, @{[new Rafaga(0, 2), new Rafaga(0, 2), new Rafaga(3, 1), new Rafaga(0, 1)]}),
                         new Proceso("P3(ULT1)", 5, 4, 1, 4, @{[new Rafaga(0, 3), new Rafaga(2, 1), new Rafaga(0, 2), new Rafaga(1, 1)]}),
-                        new Proceso("P3(ULT2)", 6, 4, 1, 4, @{[new Rafaga(0, 1), new Rafaga(0, 2), new Rafaga(2, 2), new Rafaga(0, 2)]})];                         
+                        new Proceso("P3", 6, 4, 1, 4, @{[new Rafaga(0, 1), new Rafaga(0, 2), new Rafaga(2, 2), new Rafaga(0, 2)]})];                         
 
 
 
