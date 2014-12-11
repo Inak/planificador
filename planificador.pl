@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
-use strict;
-use warnings;
+#use strict;
+#use warnings;
 
 require 'pantallas/inicial.pl';
 require 'pantallas/final.pl';
@@ -14,16 +14,17 @@ use Srt;
 use FifoUlt;
 use SrtUlt;
 use SpnUlt;
-use HrrtUlt;
+use HrrnUlt;
 use RoundRobinUlt;
 use Proceso;
 use Rafaga;
 
 ########## inicio! ##########
 
+#&test;
 &pantallaInicial;
 &planificador;
-&pantallaFinal;
+#&pantallaFinal;
 
 #############################
 
@@ -41,7 +42,7 @@ my %opciones = (
 );
 
 # tabla de planificación, aca se cargan los PC's
-my @tabla = ();
+my $tabla = [];
 
 # estado de evolución del gantt
 my %gantt = (
@@ -61,18 +62,32 @@ my @frames = ();
 my @ready = ();
 my @wait = ();
 
+# 1ero se carga el padre y luego los hijos
+# flag para indicar que el proceso es padre, si es falso se carga el padre_id del proceso hijo
+my $esPadre = 1;
+my $cargarHijo = 0;
+
 ###############################
 ### sub rutinas (funciones) ###
 ###############################
 
+# test
+sub test {
+	$procesos = [new Proceso("P1(ULT1)", 1, 1, 1, 0, @{[new Rafaga(0, 2), new Rafaga(3, 3), new Rafaga(0, 3)]})];
+
+	$salida = new Salida();
+	$salida->inicializar(@{$procesos});
+	$planificador = new Planificador(new Srt(new RoundRobinUlt(1, 2)), 1, $salida, @{$procesos});
+	$planificador->planificar_procesos();
+}
+
 # planificador: entrada al algo. ppal.
 sub planificador {
-	my $salida = new Salida();
+	$salida = new Salida();
 	$salida->inicializar(@tabla);
-	my $planificador = new Planificador(new Fifo(new SrtUlt(4)), 1, $salida, @tabla);
+	$planificador = new Planificador(new Srt(new RoundRobinUlt(1, 2)), 1, $salida, @tabla);
 	$planificador->planificar_procesos();
-
-	&menu;
+	#&menu;
 }
 
 sub menu {

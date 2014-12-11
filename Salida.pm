@@ -97,7 +97,7 @@ sub mostrar {
 	if (scalar (@{$self->{gantt}[$self->{dir_tiempo}]}) > 20) {
 		$long = 20;
 	} else {
-		$long = scalar (@{$self->{gantt}[$self->{dir_tiempo}]});
+		$long = scalar (@{$self->{gantt}[$self->{dir_tiempo}]}) - 1;
 	}
 
 	while ($cont < scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {

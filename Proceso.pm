@@ -8,7 +8,7 @@ sub new {
 	my $self = {
 		nombre   => shift,
 		id       => shift,
-		padre_id => shift,
+		padre_id => shift, # si es padre va el mismo id
 		tipo     => shift,
 		llegada  => shift,
 		rafagas  => [ @_ ],
@@ -154,8 +154,16 @@ sub mostrarCampos {
 	print "proceso padre: " . $self->{padre_id} . "\n";
 	print "tipo de proceso: " . $self->{tipo} . "\n";
 	print "tiempo de llegada: " . $self->{llegada} . "\n";
-	print "rafagas: " . $self->getTotalRafagas() . "\n";
+	print "Rafagas:\n";
+	foreach $r (@{$self->{rafagas}}) {
+		$r->mostrarCampos();
+	}
 	print "\n";
+}
+
+sub esPadre {
+	my($self) = @_;
+	return $self->{id} == $self->{padre_id};
 }
 
 1;

@@ -83,6 +83,7 @@ sub cargarProcesos {
 	&clearScreen;
 	print "Cargar procesos...\n";
 	$masProcesos = 0;
+
 	&cargarProcesoEnTabla;
 	&clearScreen;
 	print "Quiere cargar más procesos? (y/n): ";
@@ -95,7 +96,9 @@ sub cargarProcesos {
 	# más procesos?
 	$masProcesos = $eleccion eq "y" ? 1 : 0;
 	while (scalar @tabla < 10 && $masProcesos) {
+
 		&cargarProcesoEnTabla();
+
 		if (scalar @tabla < 10) {
 			print "Quiere cargar más procesos? (y/n): ";
 			my $eleccion;
@@ -114,6 +117,14 @@ sub cargarProcesoEnTabla {
 	# proceso a cargar en la tabla
 	my $proceso = new Proceso(scalar @tabla + 1);
 
+	# id del PC
+	$proceso->{id} = scalar @tabla + 1;
+
+	# el 1er proceso que cargamos es padre si o si
+	#if (scalar @tabla + 1 == 1) { por ahora son todos padres...
+		$proceso->{padre_id} = $proceso->{id};
+	#}
+
 	# tiempo de llegada
 	&clearScreen;
 	print "Cargar proceso número: " . scalar @tabla + 1 . "\n\n";
@@ -122,6 +133,15 @@ sub cargarProcesoEnTabla {
 	until ($proceso->{llegada} =~ /^\d+$/ || $proceso->{llegada} =~ /^[0]$/) {
 		print "El tiempo de llegada debe ser un entero mayor o igual a cero: ";
 		chomp($proceso->{llegada} = <>);
+	}
+
+	# cargar nombre
+	&clearScreen;
+	print "Cargar nombre del proceso (min. 1 caracter, máx. 8 caracteres): ";
+	chomp($proceso->{nombre} = <>);
+	until ($proceso->{nombre} =~ /^[a-z0-9\s]{1,8}$/i) {
+		print "El nombre debe consistir en una cadena de 1 a 8 caracteres: ";
+		chomp($proceso->{nombre} = <>);
 	}
 
 	# es KLT o ULT?
@@ -135,6 +155,7 @@ sub cargarProcesoEnTabla {
 		print "\t1: KLT, 2: ULT.\n";
 		chomp($proceso->{tipo} = <>);
 	}
+	--$proceso->{tipo};
 
 	# cargar ráfagas
 	&clearScreen;
@@ -148,7 +169,7 @@ sub cargarProcesoEnTabla {
 
 		# la 1era es de CPU
 		if ($proceso->getTotalRafagas() == 0) {
-			$rafaga->{tipo} = 1;
+			$rafaga->{tipo} = 0;
 		# las demás puede elegir cualquiera
 		} else {
 			&clearScreen;
@@ -162,6 +183,7 @@ sub cargarProcesoEnTabla {
 				print "\t1: CPU, 2: I/O1, 3: I/O2, 4: I/O3.\n";
 				chomp($rafaga->{tipo} = <>);
 			}
+			--$rafaga->{tipo};
 		}
 
 		# catn. de rafagas
@@ -187,7 +209,7 @@ sub cargarProcesoEnTabla {
 		$rafaga->{cantidad} = $rafagas;
 
 		# cargar rafaga al proceso
-		push($proceso->{rafagas}, $rafaga);
+		push(@{$proceso->{rafagas}}, $rafaga);
 
 		# mas ráfagas?
 		&clearScreen;
