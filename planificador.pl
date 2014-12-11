@@ -172,14 +172,15 @@ sub cargarOpcionesDelPlanificador {
 	&clearScreen;
 
 	# cantidad de nucleos del CPU
-	&clearScreen;
-	print "2: Numero de nucleos del CPU (1 o 2): ";
-	chomp($opciones{nucleos} = <>);
-	until ($opciones{nucleos} =~ /^[12]$/) {
-		print "2: La cantidad de nucleos solo puede ser 1 o 2: ";
-		chomp($opciones{nucleos} = <>);
-	}
-	&clearScreen;
+#	&clearScreen;
+#	print "2: Numero de nucleos del CPU (1 o 2): ";
+#	chomp($opciones{nucleos} = <>);
+#	until ($opciones{nucleos} =~ /^[12]$/) {
+#		print "2: La cantidad de nucleos solo puede ser 1 o 2: ";
+#		chomp($opciones{nucleos} = <>);
+#	}
+#	&clearScreen;
+	$opciones{nucleos} = 1; # TODO: esto no está implementado
 
 	# algoritmo para la lib. de hilos
 	&clearScreen;

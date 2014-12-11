@@ -23,7 +23,7 @@ sub cargarProcesos {
 
 	&cargarProcesoEnTabla($ultimoProceso);
 	&clearScreen;
-	print "Quiere cargar más procesos? (y/n): ";
+	print "Quiere cargar más procesos o hilos? (y/n): ";
 	my $eleccion;
 	chomp($eleccion = <>);
 	until ($eleccion =~ /^[yn]$/) {
@@ -118,8 +118,11 @@ sub cargarProcesoEnTabla {
 	if ($esHijo) {
 		$proceso->{padre_id} = $ultimoProceso->{id};
 		$proceso->{llegada} = $ultimoProceso->{llegada};
-		# TODO: construir nombre del hilo
-		$proceso->{nombre} = "H" . $proceso->{id};
+		if ($proceso->{tipo} == 0) {
+			$proceso->{nombre} = "HKLT" . $proceso->{id};
+		} else {
+			$proceso->{nombre} = "HULT" . $proceso->{id};
+		}
 	} else {
 		# tiempo de llegada
 		&clearScreen;
@@ -132,12 +135,17 @@ sub cargarProcesoEnTabla {
 		}
 
 		# cargar nombre
-		&clearScreen;
-		print "Cargar nombre del proceso (min. 1 caracter, máx. 8 caracteres): ";
-		chomp($proceso->{nombre} = <>);
-		until ($proceso->{nombre} =~ /^[a-z0-9\s]{1,8}$/i) {
-			print "El nombre debe consistir en una cadena de 1 a 8 caracteres: ";
-			chomp($proceso->{nombre} = <>);
+#		&clearScreen;
+#		print "Cargar nombre del proceso (min. 1 caracter, máx. 8 caracteres): ";
+#		chomp($proceso->{nombre} = <>);
+#		until ($proceso->{nombre} =~ /^[a-z0-9\s]{1,8}$/i) {
+#			print "El nombre debe consistir en una cadena de 1 a 8 caracteres: ";
+#			chomp($proceso->{nombre} = <>);
+#		}
+		if ($proceso->{tipo} == 0) {
+			$proceso->{nombre} = "PKLT" . $proceso->{id};
+		} else {
+			$proceso->{nombre} = "PULT" . $proceso->{id};
 		}
 
 		$proceso->{padre_id} = $proceso->{id};
