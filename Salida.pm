@@ -54,7 +54,7 @@ sub set_proceso {
 		if ($self->{gantt}[$item][0] eq $proc->get_nombre()) {
 			push @{$self->{gantt}[$item]}, "X     ";
 		} elsif (scalar (@{$self->{gantt}[$item]}) < scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {
-			push @{$self->{gantt}[$item]}, "O     ";
+			push @{$self->{gantt}[$item]}, "-     ";
 		}
 	}
 	
@@ -67,10 +67,10 @@ sub set_so {
 		if ($self->{gantt}[$item][0] eq "SO") {
 			push @{$self->{gantt}[$item]}, "X     ";
 		} elsif (scalar (@{$self->{gantt}[$item]}) < scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {
-			push @{$self->{gantt}[$item]}, "O     ";
+			push @{$self->{gantt}[$item]}, "-     ";
 		}
 	}
-
+	
 }
 
 
@@ -127,7 +127,7 @@ sub mostrar {
 	} else {
 		$long = scalar (@{$self->{gantt}[$self->{dir_tiempo}]}) - 1;
 	}
-
+	
 	while ($cont < scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {
 		#Impresion de los procesos
 		for (my $item=0; $item < $self->{dir_tiempo}; $item++) {
@@ -144,7 +144,7 @@ sub mostrar {
 			}
 			print "\n";
 		}
-
+		
 		#Impresion de los tiempos
 		for ($item=$cont; $item < $long; $item++) {
 			if ($item == 0) {
@@ -173,14 +173,18 @@ sub mostrar {
 sub mostrar_historico {
 	my ($self) = @_;
 	my $tiempo = 0;
-
+	
 	print "\n";
 	foreach my $item1(@{$self->{ready_time}}) {
 		print "\n";
 		printf "Tiempo %s: \n", $tiempo;
-		print "Ready: ";
 		foreach $item2(@{$self->{ready_time}[$tiempo]}) {
-			printf "%s ", $item2->get_nombre();
+			if ($item2->get_id() == $self->{ready_time}[$tiempo][0]->get_id()) {
+				printf "Proceso ejecutando: %s \n", $self->{ready_time}[$tiempo][0]->get_nombre();
+				print "Ready: ";
+			} else {
+				printf "%s ", $item2->get_nombre();
+			}
 		}
 
 		print "\n";
@@ -189,10 +193,22 @@ sub mostrar_historico {
 			printf "%s ", $item2->get_nombre();
 		}
 
+		print "\n";
+		print "I/O 2: ";
+		foreach $item2(@{$self->{wait_second}[$tiempo]}) {
+			printf "%s ", $item2->get_nombre();
+		}
+
+		print "\n";
+		print "I/O 3: ";
+		foreach $item2(@{$self->{wait_third}[$tiempo]}) {
+			printf "%s ", $item2->get_nombre();
+		}
+
 		$tiempo++;
 		print "\n";
 	}
-
+	
 }
 
 1;

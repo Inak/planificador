@@ -51,6 +51,8 @@ sub planificar_procesos {
 
 		$self->{salida}->set_ready_time(@{$self->{ready}});
 		$self->{salida}->set_wait_first(@{$self->{wait_first}});
+		$self->{salida}->set_wait_second(@{$self->{wait_second}});
+		$self->{salida}->set_wait_third(@{$self->{wait_third}});
 		$self->proceso_in_action();
 		$self->{tiempo} = $self->{tiempo} + 1;
 		$self->{salida}->set_tiempo($self->{tiempo});
@@ -71,6 +73,8 @@ sub proceso_in_action {
 	my ($self) = @_;
 	my $proc;
 
+	
+	
 	$proc = $self->{politica_cpu}->proximo_proceso($self->{tiempo}, @{$self->{ready}});
 	$self->planificar_wait();
 	if ($self->{padre_id} != -1 && $proc->get_padre_id() == $self->{padre_id} && $proc->es_ult()) {

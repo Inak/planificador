@@ -27,17 +27,28 @@ use Rafaga;
 # 
 # Datos de una rafaga: tipo de rafaga, cantidad
 #
-$procesos = [new Proceso("P1(ULT1)", 1, 1, 1, 0, @{[new Rafaga(0, 2), new Rafaga(3, 3), new Rafaga(0, 3)]}), 
-			new Proceso("P1(ULT2)", 2, 1, 1, 0, @{[new Rafaga(0, 1), new Rafaga(2, 1), new Rafaga(0, 1)]}), 
-			new Proceso("P3(ULT1)", 3, 3, 1, 3, @{[new Rafaga(0, 1), new Rafaga(1, 2), new Rafaga(0, 2)]}),
-			new Proceso("P3(ULT2)", 4, 3, 1, 3, @{[new Rafaga(0, 2), new Rafaga(1, 1), new Rafaga(0, 2)]}),
-			new Proceso("P4", 5, 5, 0, 4, @{[new Rafaga(0, 2), new Rafaga(1, 1), new Rafaga(0, 2)]}),
-			new Proceso("P5", 6, 6, 0, 4, @{[new Rafaga(0, 2), new Rafaga(1, 1), new Rafaga(0, 2)]})];
+
+$procesos = [new Proceso("P1(KLT1)", 1, 1, 0, 0, @{[new Rafaga(0, 4), new Rafaga(1, 1), new Rafaga(0, 3), new Rafaga(3, 2)]}),
+                        new Proceso("P2(KLT1)", 2, 2, 0, 2, @{[new Rafaga(0, 2), new Rafaga(1, 3), new Rafaga(0, 2)]}),
+                        new Proceso("P2(ULT1)", 3, 2, 1, 2, @{[new Rafaga(0, 3), new Rafaga(2, 2), new Rafaga(0, 2)]}),
+			new Proceso("P3(KLT1)", 4, 4, 0, 4, @{[new Rafaga(0, 2), new Rafaga(0, 2), new Rafaga(3, 1), new Rafaga(0, 1)]}),
+                        new Proceso("P3(ULT1)", 5, 4, 1, 4, @{[new Rafaga(0, 3), new Rafaga(2, 1), new Rafaga(0, 2), new Rafaga(1, 1)]}),
+                        new Proceso("P3(ULT2)", 6, 4, 1, 4, @{[new Rafaga(0, 1), new Rafaga(0, 2), new Rafaga(2, 2), new Rafaga(0, 2)]})];                         
+
+
+
+
 
 $salida = new Salida();
 $salida->inicializar(@{$procesos});
-$planificador = new Planificador(new Srt(new RoundRobinUlt(1, 2)), 1, $salida, @{$procesos});
+$planificador = new Planificador(new Srt(new FifoUlt(0)), 1, $salida, @{$procesos});
 $planificador->planificar_procesos();
 
 
+$salida->mostrar_historico();
+
 1;
+
+
+
+
