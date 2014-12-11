@@ -26,7 +26,7 @@ sub new {
 
 sub proximo_proceso {
 	my ($self, $tiempo, @ready) = @_;
-	my $proc_actual = new Proceso("",-1);
+	my $proc_actual = new Proceso("",-1, -1);
 
 	if (scalar (@ready) > 0) {
 		$proc_actual = $ready[0];

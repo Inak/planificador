@@ -48,6 +48,9 @@ sub planificar_procesos {
 
 	while (scalar (@{$self->{ready}}) > 0 || scalar (@{$self->{wait_first}}) > 0 || scalar (@{$self->{wait_second}}) > 0
 			|| scalar (@{$self->{wait_third}}) > 0) {
+
+		$self->{salida}->set_ready_time(@{$self->{ready}});
+		$self->{salida}->set_wait_first(@{$self->{wait_first}});
 		$self->proceso_in_action();
 		$self->{tiempo} = $self->{tiempo} + 1;
 		$self->{salida}->set_tiempo($self->{tiempo});
@@ -68,10 +71,9 @@ sub proceso_in_action {
 	my ($self) = @_;
 	my $proc;
 
-	$self->planificar_wait();
-	
 	$proc = $self->{politica_cpu}->proximo_proceso($self->{tiempo}, @{$self->{ready}});
-	if ($self->{padre_id} != -1 && $proc->get_padre_id() == $self->{padre_id} && $proc->es_ult()) { 
+	$self->planificar_wait();
+	if ($self->{padre_id} != -1 && $proc->get_padre_id() == $self->{padre_id} && $proc->es_ult()) {
 		$self->{salida}->set_so();
 	} elsif ($proc->get_id() != -1) {
 			$self->{politica_cpu}->set_ready(@{$self->{ready}});
@@ -194,6 +196,7 @@ sub planificar_wait {
 				#Movemos los procesos de la cola auxiliar. El destino dependera
 				#del proceso que se encuentre como primer elemento
 				$self->mover_procesos();
+
 			}
 		}
 	}

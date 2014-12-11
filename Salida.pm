@@ -9,6 +9,10 @@ sub new {
 		gantt =>[],
 		cant_proc => 0,
 		dir_tiempo => undef,
+		ready_time => [],
+		wait_first => [],
+		wait_second => [],
+		wait_third => [],
 	};
 	
 	bless($self, $class);
@@ -50,7 +54,7 @@ sub set_proceso {
 		if ($self->{gantt}[$item][0] eq $proc->get_nombre()) {
 			push @{$self->{gantt}[$item]}, "X     ";
 		} elsif (scalar (@{$self->{gantt}[$item]}) < scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {
-			push @{$self->{gantt}[$item]}, "      ";
+			push @{$self->{gantt}[$item]}, "O     ";
 		}
 	}
 	
@@ -63,10 +67,10 @@ sub set_so {
 		if ($self->{gantt}[$item][0] eq "SO") {
 			push @{$self->{gantt}[$item]}, "X     ";
 		} elsif (scalar (@{$self->{gantt}[$item]}) < scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {
-			push @{$self->{gantt}[$item]}, "      ";
+			push @{$self->{gantt}[$item]}, "O     ";
 		}
 	}
-	
+
 }
 
 
@@ -89,6 +93,30 @@ sub set_wait_first_process {
 	}
 }
 
+sub set_ready_time {
+	my ($self, @ready) = @_;
+
+	push @{$self->{ready_time}[scalar (@{$self->{ready_time}})]}, @ready;
+}
+
+sub set_wait_first {
+	my ($self, @wait_first) = @_;
+
+	push @{$self->{wait_first}[scalar (@{$self->{wait_first}})]}, @wait_first;
+}
+
+sub set_wait_second {
+	my ($self, @wait_second) = @_;
+
+	push @{$self->{wait_second}[scalar (@{$self->{wait_second}})]}, @wait_second;
+}
+
+sub set_wait_third {
+	my ($self, @wait_third) = @_;
+
+	push @{$self->{wait_third}[scalar (@{$self->{wait_third}})]}, @wait_third;
+}
+
 sub mostrar {
 	my ($self) = @_;
 	my $cont = 0;
@@ -101,6 +129,7 @@ sub mostrar {
 	}
 
 	while ($cont < scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {
+		#Impresion de los procesos
 		for (my $item=0; $item < $self->{dir_tiempo}; $item++) {
 			for ($item2=$cont; $item2 < $long; $item2++) {
 				if ($item2 == 0) {
@@ -116,6 +145,7 @@ sub mostrar {
 			print "\n";
 		}
 
+		#Impresion de los tiempos
 		for ($item=$cont; $item < $long; $item++) {
 			if ($item == 0) {
 				print "TIEMPO   ";
@@ -138,6 +168,31 @@ sub mostrar {
 		}
 	}
 	
+}
+
+sub mostrar_historico {
+	my ($self) = @_;
+	my $tiempo = 0;
+
+	print "\n";
+	foreach my $item1(@{$self->{ready_time}}) {
+		print "\n";
+		printf "Tiempo %s: \n", $tiempo;
+		print "Ready: ";
+		foreach $item2(@{$self->{ready_time}[$tiempo]}) {
+			printf "%s ", $item2->get_nombre();
+		}
+
+		print "\n";
+		print "I/O 1: ";
+		foreach $item2(@{$self->{wait_first}[$tiempo]}) {
+			printf "%s ", $item2->get_nombre();
+		}
+
+		$tiempo++;
+		print "\n";
+	}
+
 }
 
 1;
