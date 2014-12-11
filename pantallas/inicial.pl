@@ -33,6 +33,7 @@ sub cargarProcesos {
 		&cargarProcesoEnTabla();
 
 		if (scalar @tabla < 10) {
+			&clearScreen;
 			print "Quiere cargar más procesos? (y/n): ";
 			my $eleccion;
 			chomp($eleccion = <>);
@@ -54,9 +55,9 @@ sub cargarProcesoEnTabla {
 	$proceso->{id} = scalar @tabla + 1;
 
 	# el 1er proceso que cargamos es padre si o si
-	#if (scalar @tabla + 1 == 1) { por ahora son todos padres...
+	if (scalar @tabla + 1 == 1) {
 		$proceso->{padre_id} = $proceso->{id};
-	#}
+	}
 
 	# tiempo de llegada
 	&clearScreen;
@@ -89,6 +90,49 @@ sub cargarProcesoEnTabla {
 		chomp($proceso->{tipo} = <>);
 	}
 	--$proceso->{tipo};
+
+	# logica para los procesos hijos
+	my $ultimoProceso;
+	my $esHijo;
+	if (scalar @tabla + 1 > 1) {
+		$ultimoProceso = $tabla[$#tabla];
+		$esHijo = 0;
+
+		# si es padre se pregunta si quiere cargar hilos hijos
+		if ($ultimoProceso->esPadre()) {
+			# revisar que no exceda 3 hijos KLT o 3 hijos ULT
+			my $puedeCargarHijo = 0;
+			my $hilosKLT = 0;
+			my $hilosULT = 0;
+			foreach $pc (@tabla) {
+				if ($ultimoProceso->{id} == $pc->{padre_id}) {
+					if ($pc->{tipo} == 0) {
+						++$hilosKLT;
+					} elsif ($pc->{tipo} == 1) {
+						++$hilosULT;
+					}
+				}
+			}
+			if (
+				($hilosKLT < 3 && $proceso->{tipo} == 1) ||
+				($hilosULT < 3 && $proceso->{tipo} == 2)
+			) {
+				$proceso->{padre_id} = $ultimoProceso->{id};
+			}
+
+			&clearScreen;
+			print "Asociar el sig. proceso como hijo del anterior? (y/n): ";
+			my $eleccion;
+			chomp($eleccion = <>);
+			until ($eleccion =~ /^[yn]$/) {
+				print "Opción invalida, ingrese 'y' para cargar más o 'n' para terminar la carga: ";
+				chomp($eleccion = <>);
+			}
+			# más procesos?
+			$esHijo = $eleccion eq "y" ? 1 : 0;
+		}
+	}
+	if ($esHijo) { $proceso->{padre_id} = $ultimoProceso->{id}; }
 
 	# cargar ráfagas
 	&clearScreen;
