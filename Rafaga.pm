@@ -6,7 +6,7 @@ sub new {
 	my $class = shift;
 
 	my $self = {
-		tipo     => shift, # 1: CPU, 2: I/O, 3: I/O2, 4: I/O3
+		tipo     => shift,
 		cantidad => shift,
 		quantos => 0,
 	};
@@ -78,6 +78,12 @@ sub get_quantos() {
 	return $self->{quantos};
 }
 
+sub set_quantos() {
+	my ($self, $quantos) = @_;
+
+	$self->{quantos} = $quantos;
+}
+
 # otros metodos...
 
 sub mostrarCampos {
@@ -85,6 +91,7 @@ sub mostrarCampos {
 	print "Resumen Rafaga:\n";
 	print "tipo: " . $self->{tipo} . "\n";
 	print "cantidad: " . $self->{cantidad} . "\n";
+	print "quantos: " . $self->{quantos} . "\n";
 }
 
 1;

@@ -1,9 +1,11 @@
 package Srt;
+use Proceso;
+use Rafaga;
 use FifoUlt;
 use SrtUlt;
 use SpnUlt;
 use RoundRobinUlt;
-use HrrtUlt;
+use HrrnUlt;
 use diagnostics;
 
 
@@ -38,7 +40,7 @@ sub proximo_proceso {
 				$proc_c = $proc_a;
 			}
 			
-			if ($proc_actual->get_cantidad() > $proc_c->get_cantidad()) {
+			if ($proc_actual->get_rafaga_actual() > $proc_c->get_rafaga_actual()) {
 				$proc_actual = $proc_c;
 			}
 		}
@@ -51,6 +53,7 @@ sub procesar {
 	my ($self, $proc_actual) = @_;
 	
 	$proc_actual->descontar_rafaga();
+	$self->{salida}->set_proceso($proc_actual);
 	$self->controlar_proceso($proc_actual);
 }
 
@@ -66,7 +69,7 @@ sub controlar_proceso {
 		} else {
 			@{$self->{my_ready}} = $self->borrar_proceso($proc);
 		}
-	} elsif ($self->{biblioteca}->get_id() == 1 && $proc->get_quantos == 0) {
+	} elsif ($self->{biblioteca}->get_id() == 1 && $proc->get_quantos() == 0 && $proc->es_ult()) {
 		$self->ready_to_ready($proc);
 	}
 

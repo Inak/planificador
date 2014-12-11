@@ -5,7 +5,7 @@ use SrtUlt;
 use SpnUlt;
 use FifoUlt;
 use RoundRobinUlt;
-use HrrtUlt;
+use HrrnUlt;
 use Salida;
 use Proceso;
 use Rafaga;
@@ -45,9 +45,9 @@ sub planificar_procesos {
 		}
 	}
 	$self->{salida}->set_tiempo($self->{tiempo});
-	#$self->proceso_in_action();
 
-	while (scalar (@{$self->{ready}}) > 0 || scalar (@{$self->{wait_first}}) > 0) {
+	while (scalar (@{$self->{ready}}) > 0 || scalar (@{$self->{wait_first}}) > 0 || scalar (@{$self->{wait_second}}) > 0
+			|| scalar (@{$self->{wait_third}}) > 0) {
 		$self->proceso_in_action();
 		$self->{tiempo} = $self->{tiempo} + 1;
 		$self->{salida}->set_tiempo($self->{tiempo});
@@ -58,7 +58,6 @@ sub planificar_procesos {
 				push @{$self->{ready}}, $proc_a;
 			}
 		}
-
 	}
 
 	$self->{salida}->mostrar();
@@ -82,6 +81,8 @@ sub proceso_in_action {
 			$self->{politica_cpu}->procesar($proc);
 			@{$self->{ready}} = $self->{politica_cpu}->get_ready();
 			@{$self->{wait_first}} = $self->{politica_cpu}->get_wait_first();
+			@{$self->{wait_second}} = $self->{politica_cpu}->get_wait_second();
+			@{$self->{wait_third}} = $self->{politica_cpu}->get_wait_third();
 
 	} else {
 			$self->{salida}->set_so();
@@ -230,7 +231,7 @@ sub get_process_ult {
 	my @foo_aux = ();
 
 	foreach my $proc_a(@foo_p) {
-		if ($proc->get_padre_id() == $proc_a->get_padre_id()) {
+		if ($proc->get_padre_id() == $proc_a->get_padre_id() && $proc->es_ult()) {
 			push @foo_aux, $proc_a;
 		}
 	}
@@ -243,7 +244,7 @@ sub get_process_not_rel() {
 	
 	my @foo_aux = ();
 	foreach my $proc_a(@foo_p) {
-		if ($proc->get_padre_id() != $proc_a->get_padre_id()) {
+		if ($proc->get_padre_id() != $proc_a->get_padre_id() || !$proc_a->es_ult()) {
 			push @foo_aux, $proc_a;
 		}
 	}
@@ -295,16 +296,5 @@ sub get_wait_third {
 	return @{$self->{wait_third}};
 }
 
-sub mostrar {
-
-	my ($self, @array) = @_;
-	my $arraySize = scalar (@array);
-	print "Tamanio $arraySize\n", ;
-
-	foreach my $proceso(@array) {
-		printf " item  = %s\n", $proceso->get_id();
-	}
-
-}
 
 1;

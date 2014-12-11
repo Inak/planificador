@@ -5,7 +5,7 @@ use FifoUlt;
 use SrtUlt;
 use SpnUlt;
 use RoundRobinUlt;
-use HrrtUlt;
+use HrrnUlt;
 use diagnostics;
 
 sub new {
@@ -49,6 +49,8 @@ sub procesar {
 
 sub controlar_proceso {
 	my ($self, $proc) = @_;
+	my @foo_aux;
+	my @foo_aux_2;
 
 	if ($proc->get_rafaga_actual() == 0) {
 		$proc->eliminar_rafaga_actual();
@@ -59,8 +61,17 @@ sub controlar_proceso {
 		} else {
 			@{$self->{my_ready}} = $self->borrar_proceso($proc);
 		}
-	} elsif ($self->{biblioteca}->get_id() == 1 && $proc->get_quantos == 0) {
-		$self->ready_to_ready($proc);
+	} elsif ($self->{biblioteca}->get_id() == 1 && $proc->get_quantos() == 0 && $proc->es_ult()) {
+		@{$self->{my_ready}} = $self->borrar_proceso($proc);
+		@foo_aux = $self->get_process_ult($proc, @{$self->{my_ready}});
+		@foo_aux_2 = $self->get_process_not_rel($proc, @{$self->{my_ready}});
+
+		push @foo_aux, $proc;
+		foreach my $p(@foo_aux_2) {
+			push @foo_aux, $p;
+		}
+
+		@{$self->{my_ready}} = @foo_aux;
 	}
 
 }
@@ -171,7 +182,7 @@ sub get_wait_third {
 
 sub set_wait_third {
 	my ($self, @wait_third) = @_;
-	
+
 	@{$self->{my_wait_third}} = @wait_third;
 }
 
@@ -180,5 +191,32 @@ sub set_salida {
 	
 	$self->{salida} = $salida;
 }
+
+sub get_process_ult {
+	my ($self, $proc, @foo_p) = @_;
+	my @foo_aux = ();
+
+	foreach my $proc_a(@foo_p) {
+		if ($proc->get_padre_id() == $proc_a->get_padre_id() && $proc_a->es_ult()) {
+			push @foo_aux, $proc_a;
+		}
+	}
+
+	return @foo_aux;
+}
+
+sub get_process_not_rel() {
+	my ($self, $proc, @foo_p) = @_;
+	
+	my @foo_aux = ();
+	foreach my $proc_a(@foo_p) {
+		if ($proc->get_padre_id() != $proc_a->get_padre_id() || !$proc_a->es_ult()) {
+			push @foo_aux, $proc_a;
+		}
+	}
+
+	return @foo_aux;
+}
+
 
 1;

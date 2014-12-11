@@ -6,11 +6,11 @@ sub new {
 	my $class = shift;
 
 	my $self = {
-		nombre   => "nombre",
+		nombre   => shift,
 		id       => shift,
-		padre_id => 0,
-		tipo     => shift, # 1: KLT, 2: ULT; min. 1..3 KTL, 0..3 ULT.
-		llegada  => shift, # tiempo de llegada 0..120 (max cant. de ráfagas)
+		padre_id => shift,
+		tipo     => shift,
+		llegada  => shift,
 		rafagas  => [ @_ ],
 	};
 

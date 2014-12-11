@@ -91,30 +91,52 @@ sub set_wait_first_process {
 
 sub mostrar {
 	my ($self) = @_;
+	my $cont = 0;
+	my $long = 0;
 
-	for (my $item=0; $item < $self->{dir_tiempo}; $item++) {
-		for (my $item2=0; $item2 < scalar (@{$self->{gantt}[$item]}); $item2++) {
-			if ($item2 == 0) {
-				if (length($self->{gantt}[$item][$item2]) < 8) {
-					print $self->{gantt}[$item][$item2]."       ";
+	if (scalar (@{$self->{gantt}[$self->{dir_tiempo}]}) > 20) {
+		$long = 20;
+	} else {
+		$long = scalar (@{$self->{gantt}[$self->{dir_tiempo}]});
+	}
+
+	while ($cont < scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {
+		for (my $item=0; $item < $self->{dir_tiempo}; $item++) {
+			for ($item2=$cont; $item2 < $long; $item2++) {
+				if ($item2 == 0) {
+					if (length($self->{gantt}[$item][$item2]) < 8) {
+						print $self->{gantt}[$item][$item2]."       ";
+					} else {
+						print $self->{gantt}[$item][$item2]." ";
+					}
 				} else {
-					print $self->{gantt}[$item][$item2]." ";
+					print $self->{gantt}[$item][$item2];
 				}
+			}
+			print "\n";
+		}
+
+		for ($item=$cont; $item < $long; $item++) {
+			if ($item == 0) {
+				print "TIEMPO   ";
 			} else {
-				print $self->{gantt}[$item][$item2];
+				print $self->{gantt}[$self->{dir_tiempo}][$item];
 			}
 		}
-		print "\n";
-	}
 
-	for (my $item=0; $item < scalar (@{$self->{gantt}[$self->{dir_tiempo}]}); $item++) {
-		if ($item == 0) {
-			print "TIEMPO   ";
+		print "\n";
+		print "\n";
+		print "\n";
+		if ($long + 1 == scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {
+			$cont = $long + 1;
 		} else {
-			print $self->{gantt}[$self->{dir_tiempo}][$item];
+			$cont = $long;
+		}
+		$long = $long + (scalar (@{$self->{gantt}[$self->{dir_tiempo}]}) - $long);
+		if ($long == scalar (@{$self->{gantt}[$self->{dir_tiempo}]})) {
+			$long = $long - 1;
 		}
 	}
-	print "\n";
 	
 }
 

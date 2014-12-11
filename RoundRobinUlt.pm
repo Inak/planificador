@@ -4,7 +4,7 @@ sub new {
 	my $class = shift;
 
 	my $self = {
-		id =>shift,
+		id => shift,
 		quantos => shift,
 	};
 
@@ -15,6 +15,8 @@ sub new {
 sub proximo_proceso {
 	my ($self, $proc, $tiempo, @ready) = @_;
 	my $proc_actual = $proc;
+	my $cont = 0;
+	my $encontrado = 0;
 
 	while (!$encontrado) {
 		if ($ready[$cont]->get_padre_id() == $proc->get_padre_id() && $ready[$cont]->es_ult()) {
